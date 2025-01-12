@@ -1,35 +1,30 @@
-//
-//  RootView.swift
-//  CocktailSeguro
-//
-//  Created by Hernán Rodríguez on 12/1/25.
-//
-
-
 import SwiftUI
 
 struct RootView: View {
-    @EnvironmentObject var viewModel: RootViewModel
+    let rootViewModel: RootViewModel
     
     var body: some View {
         NavigationView {
-            VStack {
-                if viewModel.isLoading {
-                    ProgressView("Loading...")
-                } else if let errorMessage = viewModel.errorMessage {
-                    Text("Error: \(errorMessage)").foregroundColor(.red)
-                } else {
-                    List(viewModel.categories, id: \.self) { category in
-                        Text(category)
+            TabView {
+                // Tab 1: Categorías
+                CategoriesView(viewModel: rootViewModel.categoriesViewModel)
+                    .tabItem {
+                        Label("Categories", systemImage: "list.bullet")
                     }
-                }
+                
+                // Tab 2: Búsqueda
+                SearchView(viewModel: rootViewModel.searchViewModel)
+                    .tabItem {
+                        Label("Search", systemImage: "magnifyingglass")
+                    }
+                
+                // Tab 3: Ingredientes
+                IngredientsView(viewModel: rootViewModel.ingredientsViewModel)
+                    .tabItem {
+                        Label("Ingredients", systemImage: "leaf")
+                    }
             }
-            .navigationTitle("Cocktail Categories")
-            .onAppear {
-                Task {
-                    await viewModel.loadCategories()
-                }
-            }
+            .background(Color(.systemBackground))
         }
     }
 }
