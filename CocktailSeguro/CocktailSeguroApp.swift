@@ -11,7 +11,10 @@ import SwiftUI
 struct CocktailSeguroApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            let remoteDataSource = CocktailsRemoteDataSourceImpl()
+            let repository = CocktailsRepositoryImpl(remoteDataSource: remoteDataSource)
+            RootView()
+                .environmentObject(RootViewModel(repository: repository))
         }
     }
 }
