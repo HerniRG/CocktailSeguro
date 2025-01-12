@@ -1,31 +1,27 @@
 import Foundation
 import Combine
 
-final class CategoriesViewModel: ObservableObject {
-    @Published var categories: [String] = []
+final class CocktailDetailViewModel: ObservableObject {
+    @Published var cocktail: Cocktail?
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+
+    private let getCocktailDetailsUseCase: GetCocktailDetailsUseCase
     
-    private let listCategoriesUseCase: ListCategoriesUseCase
-    
-    init(listCategoriesUseCase: ListCategoriesUseCase) {
-        self.listCategoriesUseCase = listCategoriesUseCase
+    init(getCocktailDetailsUseCase: GetCocktailDetailsUseCase) {
+        self.getCocktailDetailsUseCase = getCocktailDetailsUseCase
     }
     
-    func loadCategories() async {
+    func loadCocktailDetails(id: String) async {
         DispatchQueue.main.async {
             self.isLoading = true
             self.errorMessage = nil
         }
         
         do {
-            let categories = try await listCategoriesUseCase.execute()
+            let cocktail = try await getCocktailDetailsUseCase.execute(id: id)
             DispatchQueue.main.async {
-                if categories.isEmpty {
-                    self.errorMessage = "No categories available at the moment."
-                } else {
-                    self.categories = categories
-                }
+                self.cocktail = cocktail
                 self.isLoading = false
             }
         } catch let error as CocktailsError {

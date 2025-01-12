@@ -1,8 +1,8 @@
 import SwiftUI
 
-struct IngredientsView: View {
-    @StateObject var viewModel: IngredientsViewModel
-    @State private var ingredient: String = ""
+struct SearchView: View {
+    @StateObject var viewModel: SearchViewModel
+    @State private var searchQuery: String = ""
     
     var body: some View {
         VStack(spacing: 0) {
@@ -19,24 +19,24 @@ struct IngredientsView: View {
                 Spacer()
             } else if viewModel.cocktails.isEmpty {
                 Spacer()
-                noResultsView(message: "No cocktails found for the entered ingredient.")
+                noResultsView(message: "No results found for your search.")
                 Spacer()
             } else {
                 cocktailsList
             }
         }
-        .navigationTitle("Ingredients")
+        .navigationTitle("Search")
     }
     
     private var searchBar: some View {
         HStack {
-            TextField("Enter an ingredient...", text: $ingredient)
+            TextField("Search Cocktails...", text: $searchQuery)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
             
             Button(action: {
                 Task {
-                    await viewModel.searchByIngredient(ingredient: ingredient)
+                    await viewModel.searchCocktails(name: searchQuery)
                 }
             }) {
                 Image(systemName: "magnifyingglass")

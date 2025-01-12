@@ -13,16 +13,29 @@ final class SearchViewModel: ObservableObject {
     }
     
     func searchCocktails(name: String) async {
-        isLoading = true
+        DispatchQueue.main.async {
+            self.isLoading = true
+            self.errorMessage = nil
+        }
+        
         do {
             let results = try await searchCocktailsUseCase.execute(name: name)
             DispatchQueue.main.async {
-                self.cocktails = results
+                if results.isEmpty {
+                    self.errorMessage = "No cocktails found for name: \(name)."
+                } else {
+                    self.cocktails = results
+                }
+                self.isLoading = false
+            }
+        } catch let error as CocktailsError {
+            DispatchQueue.main.async {
+                self.errorMessage = error.localizedDescription
                 self.isLoading = false
             }
         } catch {
             DispatchQueue.main.async {
-                self.errorMessage = error.localizedDescription
+                self.errorMessage = "An unexpected error occurred."
                 self.isLoading = false
             }
         }

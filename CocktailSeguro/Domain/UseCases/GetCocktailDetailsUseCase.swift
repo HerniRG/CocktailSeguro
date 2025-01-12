@@ -8,7 +8,10 @@ struct GetCocktailDetailsUseCase {
         self.repository = repository
     }
     
-    func execute(id: String) async throws -> Cocktail? {
-        return try await repository.getCocktailDetails(byId: id)
+    func execute(id: String) async throws -> Cocktail {
+        guard let cocktail = try await repository.getCocktailDetails(byId: id) else {
+            throw CocktailsError.custom(message: "No details found for the requested cocktail.")
+        }
+        return cocktail
     }
 }
