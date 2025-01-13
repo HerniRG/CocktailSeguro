@@ -2,17 +2,6 @@ import Foundation
 
 final class CocktailsURLRequestHelperImpl: URLRequestHelperProtocol {
     
-    // MARK: - Properties
-    private let baseURL = "https://www.thecocktaildb.com/api/json/v1/1/"
-    
-    // MARK: - Endpoints
-    private enum Endpoint: String {
-        case search = "search.php"
-        case lookup = "lookup.php"
-        case filter = "filter.php"
-        case list = "list.php"
-    }
-    
     // MARK: - Functions
     
     func searchCocktails(byName name: String) -> URLRequest? {
@@ -29,8 +18,8 @@ final class CocktailsURLRequestHelperImpl: URLRequestHelperProtocol {
     
     // MARK: - Private Helper
     
-    private func createURLRequest(for endpoint: Endpoint, queryItems: [String: String]) -> URLRequest? {
-        var components = URLComponents(string: "\(baseURL)\(endpoint.rawValue)")
+    private func createURLRequest(for endpoint: CocktailEndpoints.Endpoint, queryItems: [String: String]) -> URLRequest? {
+        var components = URLComponents(string: "\(CocktailEndpoints.baseURL)\(endpoint.rawValue)")
         components?.queryItems = queryItems.map { URLQueryItem(name: $0.key, value: $0.value) }
         
         guard let url = components?.url else {

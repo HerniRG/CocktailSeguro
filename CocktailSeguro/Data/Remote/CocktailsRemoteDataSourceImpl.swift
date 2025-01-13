@@ -56,7 +56,6 @@ final class CocktailsRemoteDataSourceImpl: CocktailsRemoteDataSourceProtocol {
             decoder.keyDecodingStrategy = .useDefaultKeys
             return try decoder.decode(T.self, from: data)
         } catch {
-            print("Decoding error: \(error)")
             throw CocktailsError.decodingError
         }
     }
