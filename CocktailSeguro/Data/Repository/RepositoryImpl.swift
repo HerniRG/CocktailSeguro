@@ -17,16 +17,6 @@ final class CocktailsRepositoryImpl: CocktailsRepositoryProtocol {
         return try await remoteDataSource.searchCocktails(byName: name)
     }
     
-    /// Lista todos los cocktails por la primera letra
-    func listCocktails(byFirstLetter letter: String) async throws -> [Cocktail] {
-        return try await remoteDataSource.listCocktails(byFirstLetter: letter)
-    }
-    
-    /// Busca detalles completos de un cocktail por ID
-    func getCocktailDetails(byId id: String) async throws -> Cocktail? {
-        return try await remoteDataSource.getCocktailDetails(byId: id)
-    }
-    
     /// Lista cocktails por ingrediente
     func listCocktails(byIngredient ingredient: String) async throws -> [Cocktail] {
         return try await remoteDataSource.listCocktails(byIngredient: ingredient)

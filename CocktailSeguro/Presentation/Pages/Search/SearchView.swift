@@ -6,61 +6,24 @@ struct SearchView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            searchBar // Siempre en la parte superior
-            
-            if viewModel.isLoading {
-                Spacer()
-                ProgressView("Searching...")
-                    .padding()
-                Spacer()
-            } else if let errorMessage = viewModel.errorMessage {
-                Spacer()
-                errorMessageView(message: errorMessage)
-                Spacer()
-            } else if viewModel.cocktails.isEmpty {
-                Spacer()
-                noResultsView(message: "No results found for your search.")
-                Spacer()
-            } else {
-                cocktailsList
-            }
-        }
-        .navigationTitle("Search")
-    }
-    
-    private var searchBar: some View {
-        HStack {
-            TextField("Search Cocktails...", text: $searchQuery)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal)
-            
-            Button(action: {
+            SearchBar(query: $searchQuery, placeholder: "Search Cocktails...") {
                 Task {
                     await viewModel.searchCocktails(name: searchQuery)
                 }
-            }) {
-                Image(systemName: "magnifyingglass")
-                    .padding(10)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .clipShape(Circle())
             }
+            Spacer()
+            if viewModel.isLoading {
+                LoadingView(message: "Searching...")
+            } else if let errorMessage = viewModel.errorMessage {
+                ErrorView(message: errorMessage)
+            } else if viewModel.cocktails.isEmpty {
+                NoResultsView(message: "No results found for your search.")
+            } else {
+                cocktailsList
+            }
+            Spacer()
         }
-        .padding()
-    }
-    
-    private func errorMessageView(message: String) -> some View {
-        Text(message)
-            .foregroundColor(.red)
-            .multilineTextAlignment(.center)
-            .padding()
-    }
-    
-    private func noResultsView(message: String) -> some View {
-        Text(message)
-            .foregroundColor(.gray)
-            .multilineTextAlignment(.center)
-            .padding()
+        .navigationTitle("Search")
     }
     
     private var cocktailsList: some View {

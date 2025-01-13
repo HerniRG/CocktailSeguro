@@ -3,41 +3,47 @@ import Combine
 
 final class CategoriesViewModel: ObservableObject {
     @Published var categories: [String] = []
-    @Published var isLoading: Bool = false
+    @Published var isLoading: Bool = true
     @Published var errorMessage: String?
-    
+
     private let listCategoriesUseCase: ListCategoriesUseCase
-    
+
     init(listCategoriesUseCase: ListCategoriesUseCase) {
         self.listCategoriesUseCase = listCategoriesUseCase
     }
-    
+
     func loadCategories() async {
-        DispatchQueue.main.async {
-            self.isLoading = true
-            self.errorMessage = nil
-        }
-        
+        updateState(isLoading: true)
+
         do {
             let categories = try await listCategoriesUseCase.execute()
-            DispatchQueue.main.async {
-                if categories.isEmpty {
-                    self.errorMessage = "No categories available at the moment."
-                } else {
-                    self.categories = categories
-                }
-                self.isLoading = false
-            }
+            handleSuccess(categories: categories)
         } catch let error as CocktailsError {
-            DispatchQueue.main.async {
-                self.errorMessage = error.localizedDescription
-                self.isLoading = false
-            }
+            handleError(message: error.localizedDescription)
         } catch {
-            DispatchQueue.main.async {
-                self.errorMessage = "An unexpected error occurred. Please try again."
-                self.isLoading = false
-            }
+            handleError(message: "An unexpected error occurred. Please try again.")
         }
+    }
+
+    // MARK: - Private Helpers
+
+    private func updateState(categories: [String] = [], isLoading: Bool = false, errorMessage: String? = nil) {
+        DispatchQueue.main.async {
+            self.categories = categories
+            self.isLoading = isLoading
+            self.errorMessage = errorMessage
+        }
+    }
+
+    private func handleSuccess(categories: [String]) {
+        if categories.isEmpty {
+            handleError(message: "No categories available at the moment.")
+        } else {
+            updateState(categories: categories)
+        }
+    }
+
+    private func handleError(message: String) {
+        updateState(errorMessage: message)
     }
 }

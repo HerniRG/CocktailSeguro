@@ -5,39 +5,45 @@ final class SearchViewModel: ObservableObject {
     @Published var cocktails: [Cocktail] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-    
+
     private let searchCocktailsUseCase: SearchCocktailsUseCase
-    
+
     init(searchCocktailsUseCase: SearchCocktailsUseCase) {
         self.searchCocktailsUseCase = searchCocktailsUseCase
     }
-    
+
     func searchCocktails(name: String) async {
-        DispatchQueue.main.async {
-            self.isLoading = true
-            self.errorMessage = nil
-        }
-        
+        updateState(isLoading: true)
+
         do {
             let results = try await searchCocktailsUseCase.execute(name: name)
-            DispatchQueue.main.async {
-                if results.isEmpty {
-                    self.errorMessage = "No cocktails found for name: \(name)."
-                } else {
-                    self.cocktails = results
-                }
-                self.isLoading = false
-            }
+            handleSuccess(results: results, name: name)
         } catch let error as CocktailsError {
-            DispatchQueue.main.async {
-                self.errorMessage = error.localizedDescription
-                self.isLoading = false
-            }
+            handleError(message: error.localizedDescription)
         } catch {
-            DispatchQueue.main.async {
-                self.errorMessage = "An unexpected error occurred."
-                self.isLoading = false
-            }
+            handleError(message: "An unexpected error occurred.")
         }
+    }
+
+    // MARK: - Private Helpers
+
+    private func updateState(cocktails: [Cocktail] = [], isLoading: Bool = false, errorMessage: String? = nil) {
+        DispatchQueue.main.async {
+            self.cocktails = cocktails
+            self.isLoading = isLoading
+            self.errorMessage = errorMessage
+        }
+    }
+
+    private func handleSuccess(results: [Cocktail], name: String) {
+        if results.isEmpty {
+            handleError(message: "No cocktails found for name: \(name).")
+        } else {
+            updateState(cocktails: results)
+        }
+    }
+
+    private func handleError(message: String) {
+        updateState(errorMessage: message)
     }
 }

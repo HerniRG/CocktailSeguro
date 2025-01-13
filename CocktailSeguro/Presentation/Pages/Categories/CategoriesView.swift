@@ -2,45 +2,38 @@ import SwiftUI
 
 struct CategoriesView: View {
     @StateObject var viewModel: CategoriesViewModel
-    
+
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
+            Spacer()
             if viewModel.isLoading {
-                ProgressView("Loading categories...")
-                    .padding()
+                LoadingView(message: "Loading categories...")
             } else if let errorMessage = viewModel.errorMessage {
-                Text("Error: \(errorMessage)")
-                    .foregroundColor(.red)
-                    .multilineTextAlignment(.center)
-                    .padding()
+                ErrorView(message: errorMessage)
+            } else if viewModel.categories.isEmpty {
+                NoResultsView(message: "No categories available at the moment.")
             } else {
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 10) {
-                        ForEach(viewModel.categories, id: \.self) { category in
-                            HStack {
-                                Image(systemName: "tag")
-                                    .foregroundColor(.blue)
-                                Text(category)
-                                    .font(.headline)
-                            }
-                            .padding(.vertical, 8)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color(.systemGray6))
-                            )
-                        }
-                    }
-                    .padding(.horizontal)
-                }
+                categoriesList
             }
+            Spacer()
         }
         .navigationTitle("Categories")
-        .background(Color(.systemBackground))
         .onAppear {
             Task {
                 await viewModel.loadCategories()
             }
         }
+    }
+
+    private var categoriesList: some View {
+        List(viewModel.categories, id: \.self) { category in
+            HStack {
+                Image(systemName: "tag.fill")
+                    .foregroundColor(.blue)
+                Text(category)
+                    .font(.headline)
+            }
+        }
+        .listStyle(InsetGroupedListStyle())
     }
 }
